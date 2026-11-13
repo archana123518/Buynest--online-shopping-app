@@ -57,81 +57,72 @@ namespace BuynestAPI.Controllers
                 message = "Registration successful"
             });
         }
+
         [HttpGet("profile")]
-public async Task<IActionResult> GetProfile()
-{
-    var userId = User.FindFirstValue(ClaimTypes.NameIdentifier);
+        public async Task<IActionResult> GetProfile()
+        {
+            var userId = User.FindFirstValue(ClaimTypes.NameIdentifier);
 
-    if (userId == null)
-    {
-        return Unauthorized();
-    }
+            if (userId == null)
+                return Unauthorized();
 
-    var user = await _userManager.FindByIdAsync(userId);
+            var user = await _userManager.FindByIdAsync(userId);
 
-    if (user == null)
-    {
-        return NotFound(new { message = "User not found" });
-    }
+            if (user == null)
+                return NotFound(new { message = "User not found" });
 
-    return Ok(new
-    {
-        fullName = user.FullName,
-        email = user.Email,
-        phoneNumber = user.PhoneNumber,
-        address = user.Address
-    });
-}
-[HttpPut("profile")]
-public async Task<IActionResult> UpdateProfile(ProfileUpdateRequest request)
-{
-    var userId = User.FindFirstValue(ClaimTypes.NameIdentifier);
+            return Ok(new
+            {
+                fullName = user.FullName,
+                email = user.Email,
+                phoneNumber = user.PhoneNumber,
+                address = user.Address
+            });
+        }
 
-    if (userId == null)
-    {
-        return Unauthorized();
-    }
+        [HttpPut("profile")]
+        public async Task<IActionResult> UpdateProfile(ProfileUpdateRequest request)
+        {
+            var userId = User.FindFirstValue(ClaimTypes.NameIdentifier);
 
-    var user = await _userManager.FindByIdAsync(userId);
+            if (userId == null)
+                return Unauthorized();
 
-    if (user == null)
-    {
-        return NotFound(new { message = "User not found" });
-    }
+            var user = await _userManager.FindByIdAsync(userId);
 
-    if (request.FullName != null)
-        user.FullName = request.FullName;
+            if (user == null)
+                return NotFound(new { message = "User not found" });
 
-    if (request.PhoneNumber != null)
-        user.PhoneNumber = request.PhoneNumber;
+            if (request.FullName != null)
+                user.FullName = request.FullName;
 
-    if (request.Address != null)
-        user.Address = request.Address;
+            if (request.PhoneNumber != null)
+                user.PhoneNumber = request.PhoneNumber;
 
-    var result = await _userManager.UpdateAsync(user);
+            if (request.Address != null)
+                user.Address = request.Address;
 
-    if (!result.Succeeded)
-    {
-        return BadRequest(new { errors = result.Errors });
-    }
+            var result = await _userManager.UpdateAsync(user);
 
-    return Ok(new
-    {
-        message = "Profile updated successfully",
-        fullName = user.FullName,
-        email = user.Email,
-        phoneNumber = user.PhoneNumber,
-        address = user.Address
-    });
-}
+            if (!result.Succeeded)
+            {
+                return BadRequest(new { errors = result.Errors });
+            }
+
+            return Ok(new
+            {
+                message = "Profile updated successfully",
+                fullName = user.FullName,
+                email = user.Email,
+                phoneNumber = user.PhoneNumber,
+                address = user.Address
+            });
+        }
+
         [HttpPost("login")]
         public async Task<IActionResult> Login(LoginRequest request)
         {
             var user = await _userManager.FindByEmailAsync(request.Email);
-
-            Console.WriteLine(
-                "LOGIN EMAIL FOUND: " + (user != null)
-            );
 
             if (user == null)
             {
@@ -141,11 +132,10 @@ public async Task<IActionResult> UpdateProfile(ProfileUpdateRequest request)
                 });
             }
 
-            var isPasswordValid =
-                await _userManager.CheckPasswordAsync(
-                    user,
-                    request.Password
-                );
+            var isPasswordValid = await _userManager.CheckPasswordAsync(
+                user,
+                request.Password
+            );
 
             if (!isPasswordValid)
             {
@@ -166,13 +156,7 @@ public async Task<IActionResult> UpdateProfile(ProfileUpdateRequest request)
                 SecurityAlgorithms.HmacSha256
             );
 
-            // Get user roles
             var roles = await _userManager.GetRolesAsync(user);
-
-            // Debug: Check whether Admin role is available
-            Console.WriteLine(
-                "USER ROLES: " + string.Join(",", roles)
-            );
 
             var claims = new List<Claim>
             {
@@ -180,7 +164,6 @@ public async Task<IActionResult> UpdateProfile(ProfileUpdateRequest request)
                 new Claim(ClaimTypes.Email, user.Email!)
             };
 
-            // Add roles to JWT token
             foreach (var role in roles)
             {
                 claims.Add(

@@ -983,9 +983,7 @@ function HomePage() {
           </h1>
 
           <p>
-            Explore thoughtfully selected products for your everyday life.
-            Find your favourites, discover new styles and enjoy shopping
-            with Buynest.
+            “Everything You Need, All in One Place. Discover your style with Buynest.”
           </p>
 
           <button
